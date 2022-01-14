@@ -1,0 +1,16 @@
+body {
+  padding: 16px;
+}
+
+#stavke-naslov{
+  text-align: center;
+  padding: 10px 0;
+}
+
+#btn-otkazi{
+  float: right;
+}
+
+.selected{
+  background-color: burlywood;
+}
