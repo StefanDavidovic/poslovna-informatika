@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Banka, BankarskiRacun, DnevnoStanje, IzlaznaFaktura, PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda
+from .models import Banka, BankarskiRacun, DnevnoStanje, IzlaznaFaktura, PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -20,4 +20,5 @@ admin.site.register(PoslovnaGodina)
 admin.site.register(PoslovniPartner)
 admin.site.register(Preduzece)
 admin.site.register(StavkaIzvoda)
+admin.site.register(ZakljuceneFakture)
 

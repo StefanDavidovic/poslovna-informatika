@@ -3,85 +3,49 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PreduzeceSerializer, StavkaIzvodaSerializer
-from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, Preduzece, StavkaIzvoda
-from rest_framework.views import APIView
-import csv
+from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
+from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
-from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askopenfilename
 
-
-
-
-class ExportCSVStudents(APIView):
-    def get(self, request, *args, **kwargs):
-
-        Tk().withdraw()
-        response = HttpResponse(content_type='application/json')
-        response['Content-Disposition'] = 'attachment; filename="sample.csv"'
-
-        writer = csv.writer(response)
-        stanja = DnevnoStanje.objects.all()
-
-        for j in stanja:
-          k = DnevnoStanjeSerializer(j)
-          i = k.data
-          serializer = DnevnoStanjeSerializer(j)
-
-          id = str(list(i.items())[0][1])
-          broj_izvoda = str(list(i.items())[1][1])
-          datum_izvoda = list(i.items())[2][1]
-          novo_stanje = list(i.items())[3][1]
-          prethodno_stanje = list(i.items())[4][1]
-          promet_na_teret = list(i.items())[5][1]
-          promet_u_korist = list(i.items())[6][1]
-          rezervisano = list(i.items())[7][1]
-          bankarski_racun_id = list(i.items())[8][1]
-
-          stavkeSve = j.stavke.all()
-          listaStavki = []
-
-          for st in stavkeSve:
-            stavkeSer = StavkaIzvodaSerializer(st)
-            stavka = stavkeSer.data
-            stavkaId = list(stavka.items())[1][1]
-            listaStavki.append(stavkaId)
-
-          lista = [str(id),str(broj_izvoda) ,datum_izvoda, str(novo_stanje), str(prethodno_stanje),str(promet_na_teret),
-          str(promet_u_korist), str(rezervisano), str(bankarski_racun_id), listaStavki]
-
-          writer.writerow(lista)
-
-        return response
 ### Banka ###
 @api_view(['POST'])
-def importStanja(request):
-    # Tk().withdraw()
-    
+def importStanja(request):    
     response = HttpResponse(content_type='application/json')
     response['Content-Disposition'] = 'attachment; filename="sample.csv"'
-    print(request.FILES['File'] , 'OVO JE FAJL')
+
     nazivFajla = request.FILES['File'] 
     with open(f'/home/ubuntu/Desktop/{nazivFajla}') as f:
-        reader = csv.reader(f)
-        for row in reader:
-          print(row[9])
+      stanjaDict = json.load(f)
+      stavkeIzvodaa = stanjaDict['stavke']
 
-          stanja= DnevnoStanje.objects.create(
-              # id=row[0],
-              broj_izvoda=row[1],
-              datum_izvoda=row[2],
-              novo_stanje=row[3],
-              prethodno_stanje=row[4],
-              promet_na_teret=row[5],
-              promet_u_korist=row[6],
-              rezervisano=row[7],
-              # bankarski_racun_id=stanja.stanja.crate(id = row[8])
-              )
-          stanjaSer = DnevnoStanjeSerializer(stanja)
+      stanja= DnevnoStanje.objects.create(
+          broj_izvoda=stanjaDict['broj_izvoda'],
+          datum_izvoda=stanjaDict['datum_izvoda'],
+          novo_stanje=stanjaDict['novo_stanje'],
+          prethodno_stanje=stanjaDict['prethodno_stanje'],
+          promet_na_teret=stanjaDict['promet_na_teret'],
+          promet_u_korist=stanjaDict['promet_u_korist'],
+          rezervisano=stanjaDict['rezervisano']
+      )
+      stanjaSer = DnevnoStanjeSerializer(stanja)
 
-    return Response(stanjaSer.data)
+      for stavkeIzvoda in stavkeIzvodaa: 
+        stavke = StavkaIzvoda.objects.create(
+          broj_stavke = stavkeIzvoda['broj_stavke'],
+          iznos = stavkeIzvoda['iznos'],
+          model =  stavkeIzvoda['model'],
+          poziv_na_broj = stavkeIzvoda['poziv_na_broj'],
+          primalac = stavkeIzvoda['primalac'],
+          racun_primaoca = stavkeIzvoda['racun_primaoca'],
+          svrha_placanja = stavkeIzvoda['svrha_placanja'],
+          dnevno_stanje = DnevnoStanje.objects.get(id=int(stavkeIzvoda['dnevno_stanje'])),
+          preostalo = stavkeIzvoda['iznos']
+        )
+        print("kreirana stavka")
+
+        stavkeSer = StavkaIzvodaSerializer(stavke)
+
+    return Response(201)
     
 
 @api_view(['GET'])
@@ -137,7 +101,7 @@ def createDnevnoStanje(request):
 def updateDnevnaStanja(request, pk):
   stanje = DnevnoStanje.objects.get(id=pk)
   serializer = DnevnoStanjeSerializer(instance=stanje,data=request.data)
-  
+
   if serializer.is_valid():
     serializer.save()
 
@@ -179,9 +143,11 @@ def updateFaktura(request, pk):
   serializer = IzlaznaFakturaSerializer(instance=faktura,data=request.data)
   
   if serializer.is_valid():
+    print(serializer.errors)
     serializer.save()
+  print(serializer.errors)
 
-  return Response("Izlazna faktura uspesno izmenjena")
+  return Response(serializer.data)
 
 @api_view(['DELETE'])
 def deleteFaktura(request, pk):
@@ -267,3 +233,43 @@ def deleteStavka(request, pk):
   
   return Response("Stavka je obrisana") 
 
+### Zakljucene Fakture ###
+
+
+@api_view(['GET'])
+def zakljucene(request):
+  stavke = ZakljuceneFakture.objects.all()
+  serializer = ZakljuceneSerializer2(stavke, many=True)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+def zakljucena(request, pk):
+  stavka = ZakljuceneFakture.objects.get(id=pk)
+  serializer = ZakljuceneSerializer2(stavka, many=False)
+  return Response(serializer.data)
+
+@api_view(['POST'])
+def createZakljucena(request):
+  serializer = ZakljuceneSerializer(data=request.data)
+  
+  if serializer.is_valid():
+    serializer.save()
+
+  return Response("Zakljucena faktura uspesno kreirana")
+
+@api_view(['PUT'])
+def updateZakljucena(request, pk):
+  stavka = ZakljuceneFakture.objects.get(id=pk)
+  serializer = ZakljuceneSerializer(instance=stavka,data=request.data)
+  
+  if serializer.is_valid():
+    serializer.save()
+
+  return Response("Zakljucena faktura uspesno izmenjena")
+
+@api_view(['DELETE'])
+def deleteZakljucena(request, pk):
+  stanje = ZakljuceneFakture.objects.get(id=pk)
+  stanje.delete()
+  
+  return Response("Zakljucena faktura je obrisana") 

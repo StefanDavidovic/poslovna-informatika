@@ -48,10 +48,6 @@ function App() {
   console.log(JSON.stringify(dodateStavke) + "DODATE Stavke")
   console.log(JSON.stringify(dodateFakture) + "DODATE Stavke")
 
-  // function toggleStavke(st) {
-  //   setStavke({...dodate, [st.id]: st});
-  // }
-
   return (
     <Container>
 
@@ -69,10 +65,7 @@ function App() {
         <FakturaComponent />
       </FaktureContext.Provider>
 
-      <Row> 
-        <Col><Button variant="outline-dark" id="btn-otkazi">Otkazi</Button></Col>
-        <Col><Button variant="success">Povezi</Button></Col>
-      </Row>
+
 
       <StavkeContext.Provider
         value={{ dodateStavke, setDodate }}
@@ -86,9 +79,6 @@ function App() {
 
 
 
-
-      
-      
       
       <Row>
         <input type="file" name="file" onChange={changeHandler} />

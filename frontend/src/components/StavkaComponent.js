@@ -27,6 +27,7 @@ function StavkaComponent(){
       })
         .then(response => {
           setStavke(response.data)
+          console.log(response.data)
           setPaginated(_(response.data).slice(0).take(pageSize).value())
         })
         .catch(error => {
@@ -93,7 +94,7 @@ function StavkaComponent(){
                     <td>{stavka.duznik.bankarski_racun_id.broj_racuna}</td>
                     <td>{stavka.poziv_na_broj}</td>
                     <td>{stavka.model} </td>
-                    <td>{stavka.iznos} </td>
+                    <td>{stavka.preostalo} </td>
                   </tr>
                 )}
                 </tbody>

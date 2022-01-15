@@ -64,6 +64,7 @@ class IzlaznaFaktura(models.Model):
   broj_fakture = models.CharField(max_length=45)
   iznos_za_placanje = models.FloatField()
   poslovna_godina_id = models.ForeignKey(PoslovnaGodina, on_delete=models.CASCADE ,default=1)
+  uplaceno = models.FloatField(default=0)
 
   def __str__(self):
         return str(self.broj_fakture)
@@ -77,8 +78,16 @@ class StavkaIzvoda(models.Model):
   racun_primaoca = models.CharField(max_length=45)
   svrha_placanja = models.CharField(max_length=45)
   duznik = models.ForeignKey(PoslovniPartner, on_delete=models.CASCADE,default=1)
-  dnevno_stanje = models.ForeignKey(DnevnoStanje, on_delete=models.CASCADE, related_name='stavke')
-  fakture = models.ManyToManyField(IzlaznaFaktura) 
+  dnevno_stanje = models.ForeignKey(DnevnoStanje,default=1, on_delete=models.CASCADE, related_name='stavke')
+  preostalo = models.FloatField(default=0)
+
+  # fakture = models.ManyToManyField(IzlaznaFaktura) 
 
   def __str__(self):
        return str(self.broj_stavke)
+
+
+class ZakljuceneFakture(models.Model):
+  faktura = models.ForeignKey(IzlaznaFaktura,on_delete=models.CASCADE)
+  stavka = models.ForeignKey(StavkaIzvoda,on_delete=models.CASCADE)
+  uplaceno = models.FloatField(default=0)

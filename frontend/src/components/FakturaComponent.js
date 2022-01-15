@@ -15,6 +15,7 @@ function FakturaComponent(){
   const [currentPage, setCurrentPage] = useState(1)
   const {dodateFakture, setDodateFakture} = useContext(FaktureContext)
 
+
   useEffect(() => {
     const headers = {
       'Content-Type': 'application/json'
@@ -86,7 +87,7 @@ function FakturaComponent(){
                 <tr className={getRowClassName(faktura.id)} key={faktura.id} onClick={onRowClick(faktura)}>
                   <td>{faktura.broj_fakture}</td>
                   <td>{faktura.iznos_za_placanje}</td>
-                  <td>Treba Dodati Placeni Iznos</td>
+                  <td>{faktura.uplaceno}</td>
                 </tr>
               )}
 

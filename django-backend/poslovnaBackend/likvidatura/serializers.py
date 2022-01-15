@@ -1,5 +1,5 @@
 from django.db.models import fields
-from .models import Banka, BankarskiRacun, DnevnoStanje, IzlaznaFaktura, PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda
+from .models import Banka, BankarskiRacun, DnevnoStanje, IzlaznaFaktura, PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 from rest_framework import serializers
 
 class BankaSerializer(serializers.ModelSerializer):
@@ -35,14 +35,27 @@ class PoslovniPartnerSerializer(serializers.ModelSerializer):
     fields = ['id','naziv', 'bankarski_racun_id']
 
 class IzlaznaFakturaSerializer(serializers.ModelSerializer):
-  poslovna_godina_id = PoslovnaGodinaSerializer()
+  # poslovna_godina_id = PoslovnaGodinaSerializer()
   class Meta:
     model =  IzlaznaFaktura
-    fields = ['id', 'broj_fakture', 'iznos_za_placanje', 'poslovna_godina_id']
+    fields = ['id', 'broj_fakture', 'iznos_za_placanje', 'poslovna_godina_id','uplaceno']
 
 class StavkaIzvodaSerializer(serializers.ModelSerializer):
   fakture = IzlaznaFakturaSerializer(many=True, read_only=True)
   duznik = PoslovniPartnerSerializer(read_only=True)
   class Meta:
     model =  StavkaIzvoda
-    fields = ['id', 'broj_stavke', 'iznos', 'model', 'poziv_na_broj', 'primalac', 'racun_primaoca', 'svrha_placanja', 'duznik', 'dnevno_stanje', 'fakture']
+    fields = ['id', 'broj_stavke', 'iznos', 'model', 'poziv_na_broj', 'primalac', 'racun_primaoca', 'svrha_placanja', 'duznik', 'dnevno_stanje', 'fakture', 'preostalo']
+
+
+class ZakljuceneSerializer2(serializers.ModelSerializer):
+  faktura = IzlaznaFakturaSerializer(read_only=True)
+  stavka = StavkaIzvodaSerializer(read_only=True)
+  class Meta:
+    model =  ZakljuceneFakture
+    fields = ['id', 'faktura', 'stavka', 'uplaceno']
+
+class ZakljuceneSerializer(serializers.ModelSerializer):
+  class Meta:
+    model =  ZakljuceneFakture
+    fields = ['id', 'faktura', 'stavka', 'uplaceno']

@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from.views import ExportCSVStudents
 
 urlpatterns = [
     path('banke/', views.banke, name='banke' ),
@@ -35,7 +34,12 @@ urlpatterns = [
     path('stavke/<str:pk>/delete', views.deleteStavka, name='delete-stavka' ),
     path('stavke/<str:pk>', views.stavka, name='stavka' ),
 
-    path('export/', ExportCSVStudents.as_view(), name='export'),
+    path('zakljucene/', views.zakljucene, name='zakljucene' ),
+    path('zakljucene/create', views.createZakljucena, name='create-zakljucena' ),
+    path('zakljucene/<str:pk>/update', views.updateZakljucena, name='update-zakljucena' ),
+    path('zakljucene/<str:pk>/delete', views.deleteZakljucena, name='delete-zakljucena' ),
+    path('zakljucene/<str:pk>', views.zakljucena, name='zakljucena' ),
+
     path('import/', views.importStanja, name='export2')
 
 
