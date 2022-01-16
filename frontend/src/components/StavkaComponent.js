@@ -263,7 +263,7 @@ function StavkaComponent() {
     : 0;
   if (pageCount === 0) return null;
   const pages = _.range(1, pageCount + 1);
-  console.log(paginated + "STAVKE pag")
+
   return (
     <Container  className="containerr">
       <Row style={{ marginTop: 50, marginBottom: 25 }}>

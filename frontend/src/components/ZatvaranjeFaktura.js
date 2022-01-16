@@ -175,7 +175,6 @@ function ZatvaranjeFaktura() {
   if(pageCount === 0) return null; 
   const pages = _.range(1,pageCount + 1)
 
-  console.log(paginated+ "ZATVORENE pag")
 
   return (
 

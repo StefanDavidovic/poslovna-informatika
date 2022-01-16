@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.db.models.expressions import Case
 
+
 # Create your models here.
 class Banka(models.Model):
   sifra = models.CharField(max_length=45)
@@ -65,6 +66,7 @@ class IzlaznaFaktura(models.Model):
   iznos_za_placanje = models.FloatField()
   poslovna_godina_id = models.ForeignKey(PoslovnaGodina, on_delete=models.CASCADE ,default=1)
   uplaceno = models.FloatField(default=0)
+  partner = models.ForeignKey(PoslovniPartner,on_delete=CASCADE, default=1)
 
   def __str__(self):
         return str(self.broj_fakture)

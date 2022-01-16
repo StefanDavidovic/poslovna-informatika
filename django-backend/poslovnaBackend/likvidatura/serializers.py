@@ -36,9 +36,10 @@ class PoslovniPartnerSerializer(serializers.ModelSerializer):
 
 class IzlaznaFakturaSerializer(serializers.ModelSerializer):
   # poslovna_godina_id = PoslovnaGodinaSerializer()
+  partner = PoslovniPartnerSerializer(read_only=True)
   class Meta:
     model =  IzlaznaFaktura
-    fields = ['id', 'broj_fakture', 'iznos_za_placanje', 'poslovna_godina_id','uplaceno']
+    fields = ['id', 'broj_fakture', 'iznos_za_placanje', 'poslovna_godina_id','uplaceno','partner']
 
 class StavkaIzvodaSerializer(serializers.ModelSerializer):
   fakture = IzlaznaFakturaSerializer(many=True, read_only=True)

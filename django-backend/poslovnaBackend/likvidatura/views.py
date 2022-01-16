@@ -1,9 +1,10 @@
+from typing import Counter
 from django.http import response
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
+from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PoslovniPartnerSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
 from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
 import io
@@ -16,22 +17,28 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 @api_view(['GET'])
-def generatePdf(request):
+def generatePdf(request, pk):
   buf = io.BytesIO()
   c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
   width, height = A4
   c.drawString(217,40, 'IZLAZNE FAKTURE')
-
+  print(pk)
   fakture = IzlaznaFaktura.objects.all()
+  fakturee =[]
+  for fakt in fakture:
+    if int(pk) == int(fakt.partner.id):
+      fakturee.append(fakt)
+  print(fakturee)
+  counter = len(fakturee) + 1
 
   lines = []
-  for ob in fakture:
+  for ob in fakturee:
     data = [ob.broj_fakture, str(ob.iznos_za_placanje), str(ob.uplaceno)]
     lines.append(data)
   
   lines.append(["Broj Fakture", "Iznos za Placanje", "Uplaceno"])
 
-  table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *4)
+  table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *counter)
 
   table.setStyle(TableStyle([
         ('BACKGROUND', (0, -1), (2, -1), '#a7a5a5'),
@@ -47,6 +54,41 @@ def generatePdf(request):
   buf.seek(0)
 
   return FileResponse(buf, as_attachment=True, filename='fakture.pdf')
+
+
+
+# @api_view(['GET'])
+# def generatePdf(request):
+#   buf = io.BytesIO()
+#   c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
+#   width, height = A4
+#   c.drawString(217,40, 'IZLAZNE FAKTURE')
+
+#   fakture = IzlaznaFaktura.objects.all()
+
+#   lines = []
+#   for ob in fakture:
+#     data = [ob.broj_fakture, str(ob.iznos_za_placanje), str(ob.uplaceno)]
+#     lines.append(data)
+  
+#   lines.append(["Broj Fakture", "Iznos za Placanje", "Uplaceno"])
+
+#   table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *4)
+
+#   table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, -1), (2, -1), '#a7a5a5'),
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black)
+#     ]))
+#   table.wrapOn(c, width, height)
+#   table.drawOn(c, 25*mm, 25*mm)
+  
+#   c.showPage()
+#   c.save()
+#   buf.seek(0)
+
+#   return FileResponse(buf, as_attachment=True, filename='fakture.pdf')
 
 ### Import ###
 @api_view(['POST'])
@@ -115,6 +157,18 @@ def racuni(request):
 def racun(request, pk):
   racuni = BankarskiRacun.objects.get(id=pk)
   serializer = BankarskiRacunSerializer(racuni, many=False)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+def partneri(request):
+  racuni = PoslovniPartner.objects.all()
+  serializer = PoslovniPartnerSerializer(racuni, many=True)
+  return Response(serializer.data)
+
+@api_view(['GET'])
+def partner(request, pk):
+  racuni = PoslovniPartner.objects.get(id=pk)
+  serializer = PoslovniPartnerSerializer(racuni, many=False)
   return Response(serializer.data)
 
 

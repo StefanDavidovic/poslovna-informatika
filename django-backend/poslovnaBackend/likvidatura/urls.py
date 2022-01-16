@@ -8,6 +8,9 @@ urlpatterns = [
     path('racuni/', views.racuni, name='racuni' ),
     path('racuni/<str:pk>', views.racun, name='racun' ),
 
+    path('partneri/', views.partneri, name='partneri' ),
+    path('partneri/<str:pk>', views.partner, name='partner' ),
+
     path('dnevna-stanja/', views.dnevnaStanja, name='dnevna-stanja' ),
     
     path('dnevna-stanja/create', views.createDnevnoStanje, name='create-dnevna-stanja' ),
@@ -41,7 +44,8 @@ urlpatterns = [
     path('zakljucene/<str:pk>', views.zakljucena, name='zakljucena' ),
 
     path('import/', views.importStanja, name='export2'),
-    path('generatePdf/', views.generatePdf, name='generatePdf')
+    path('generatePdf/<str:pk>/', views.generatePdf, name='generatePdf'),
+    # path('generatePdf/', views.generatePdf, name='generatePdf')
 
 
 

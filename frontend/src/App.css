@@ -45,3 +45,12 @@ body {
 #navbar{
   margin-bottom: -20px;
 }
+
+#partneri{
+  text-decoration: none;
+  padding: 30px;
+  color: black;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+}

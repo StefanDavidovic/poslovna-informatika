@@ -96,7 +96,6 @@ function FakturaComponent(){
   if(pageCount === 0) return null; 
   const pages = _.range(1,pageCount + 1)
 
-  console.log(paginated+ "FAKTURE pag")
   return (
     <Container className="containerr">
       <Row style={{marginTop:20, marginBottom:25}}><Col id="stavke-naslov"><h2>Izlazne Fakture</h2></Col></Row>
