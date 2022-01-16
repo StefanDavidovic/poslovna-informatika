@@ -52,13 +52,13 @@ function App() {
   return (
     <>
     <Header />
-    <Container>
+    <Container  className="containerrr">
 
       <StavkeContext.Provider
         value={{ dodateStavke, setDodate }}
       >
         <StavkaComponent/>
-      </StavkeContext.Provider>
+      </StavkeContext.Provider><hr />
 
 
 
@@ -66,7 +66,7 @@ function App() {
         value={{ dodateFakture, setDodateFakture }}
       >
         <FakturaComponent />
-      </FaktureContext.Provider>
+      </FaktureContext.Provider><hr />
 
 
 
@@ -78,19 +78,19 @@ function App() {
       >
           <ZatvaranjeFaktura />
         </FaktureContext.Provider>
-      </StavkeContext.Provider>
+      </StavkeContext.Provider><hr />
 
 
 
       
-      <Row>
+      <Row id="upload">
         <input type="file" name="file" onChange={changeHandler} />
         <div>
           <Button variant="outline-success" onClick={handleSubmission}>Upload</Button>
           {/* <button onClick={handleSubmission}>Submit</button> */}
         </div>
 
-      </Row>
+      </Row><hr/>
 
 
     </Container>

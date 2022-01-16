@@ -96,14 +96,14 @@ function FakturaComponent(){
   if(pageCount === 0) return null; 
   const pages = _.range(1,pageCount + 1)
 
-
+  console.log(paginated+ "FAKTURE pag")
   return (
-    <Container>
+    <Container className="containerr">
       <Row style={{marginTop:20, marginBottom:25}}><Col id="stavke-naslov"><h2>Izlazne Fakture</h2></Col></Row>
       <Row style={{ marginTop: 50, marginBottom: 25 }}>
         <Col id="stavke-search">
           <label htmlFor="search">
-            <input id="search" type="text" onChange={handleSearch} />
+            <input placeholder="Search" id="search" type="text" onChange={handleSearch} />
           </label>
         </Col>
       </Row>

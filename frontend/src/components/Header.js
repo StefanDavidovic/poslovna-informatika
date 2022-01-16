@@ -8,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function Header() {
   return (
-    <Navbar bg="dark" variant="dark">
+    <Navbar id="navbar" bg="dark" variant="dark">
       <Container>
         <Navbar.Brand href="#home">Likvidatura</Navbar.Brand>
         <Navbar.Toggle />

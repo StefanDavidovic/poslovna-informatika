@@ -8,43 +8,65 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import _ from "lodash";
 import { StavkeContext, FaktureContext } from "../App";
 
 function ZatvaranjeFaktura() {
-  const [zakljucene, setZakljucene] = useState([])
+  const zakljucene = useRef([])
   const { dodateStavke, setDodate } = useContext(StavkeContext);
   const { dodateFakture, setDodateFakture } = useContext(FaktureContext);
   const [paginated, setPaginated] = useState([])
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1)
 
-  let zakljuceneFakture = []
-  Object.values(zakljucene).forEach((faktura) => {
-    zakljuceneFakture = [...zakljuceneFakture, faktura]
-  });
+  const pagination = pageNo => {
+    setCurrentPage(pageNo);
 
+    const startIndex = (pageNo - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
 
+    let paginatedStavke;
+
+    if (search) {
+      paginatedStavke = getFiltered(zakljucene.current, search).slice(startIndex, endIndex);
+    } else {
+      paginatedStavke = zakljucene.current.slice(startIndex, endIndex);
+    }
+
+    setPaginated(paginatedStavke);
+    };
 
   useEffect(() => {
     const headers = {
       'Content-Type': 'application/json'
     }
-    const getZakljucene = async() =>{
-       await axios.get("http://localhost:8000/api/zakljucene/", {
+    const getZakljucene = () =>{
+       axios.get("http://localhost:8000/api/zakljucene/", {
         headers: headers
       })
         .then(response => {
-          setZakljucene(response.data)
-          console.log(zakljucene + "OVO JE RESPONSE")
-          setPaginated(_(response.data).slice(0).take(pageSize).value())
+          zakljucene.current=response.data
+          pagination(1);
         })
+        .catch(error => {
+          console.log(error);
+          setError(error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
 
       };
     getZakljucene()
   }, [])
-  console.log(zakljuceneFakture)
 
+  useEffect(() => {
+    pagination(1);
+  }, [search]);
+  // const uplaceno = prompt("Unesite iznos:");
   const eventHandler = async (event) => {
     let data = {};
     let dataa = {};
@@ -131,21 +153,33 @@ function ZatvaranjeFaktura() {
     window.location.reload(false);
   };
 
+  const handleSearch = event => {
+    setSearch(event.target.value);
+  };
+
+  const getFiltered = (zakljucene, search) => {
+    return zakljucene.filter(product =>
+      product.faktura.broj_fakture.toString().toLowerCase().includes(search) ||
+      product.stavka.broj_stavke.toString().toLowerCase().includes(search) ||
+      product.stavka.duznik.naziv.toString().toLowerCase().includes(search) ||
+      product.stavka.duznik.bankarski_racun_id.broj_racuna.toString().toLowerCase().includes(search) ||
+      product.stavka.poziv_na_broj.toString().toLowerCase().includes(search) ||
+      product.uplaceno.toString().toLowerCase().includes(search)
+    );
+  };
+
   const pageSize = 3;
-  const pageCount = zakljucene? Math.ceil(zakljucene.length/pageSize):0;
+  const pageCount = paginated
+    ? Math.ceil(zakljucene.current.length / pageSize)
+    : 0;
   if(pageCount === 0) return null; 
   const pages = _.range(1,pageCount + 1)
 
-  const pagination = (pageNo) => {
-    setCurrentPage(pageNo);
-    const startIndex = (pageNo - 1)*pageSize
-    const paginatedStavke = _(zakljucene).slice(startIndex).take(pageSize).value();
-    setPaginated(paginatedStavke)
-  }
+  console.log(paginated+ "ZATVORENE pag")
 
   return (
 
-    <Container>
+    <Container className="containerr">
       <Row>
         <Col>
           <Button variant="outline-dark" id="btn-otkazi">
@@ -159,6 +193,13 @@ function ZatvaranjeFaktura() {
       <Row style={{ marginTop: 50, marginBottom: 25 }}>
         <Col id="stavke-naslov">
           <h2>Zatvorene Fakture</h2>
+        </Col>
+      </Row>
+      <Row style={{ marginTop: 50, marginBottom: 25 }}>
+        <Col id="stavke-search">
+          <label htmlFor="search">
+            <input placeholder="Search" id="search" type="text" onChange={handleSearch} />
+          </label>
         </Col>
       </Row>
       <Row>
@@ -180,7 +221,7 @@ function ZatvaranjeFaktura() {
                   <tr key={zakljucena.id}>
                     <td>{zakljucena.faktura.broj_fakture}</td>
                     <td>{zakljucena.stavka.broj_stavke}</td>
-                    <td>{zakljucena.faktura.uplaceno}</td>
+                    <td>{zakljucena.uplaceno}</td>
                     <td>{zakljucena.stavka.duznik.naziv}</td>
                     <td>{zakljucena.stavka.duznik.bankarski_racun_id.broj_racuna}</td>
                     <td>{zakljucena.stavka.poziv_na_broj}</td>
