@@ -247,7 +247,13 @@ function StavkaComponent() {
 
   const getFiltered = (stavke, search) => {
     return stavke.filter(product =>
-      product.broj_stavke.toString().toLowerCase().includes(search)
+      product.broj_stavke.toString().toLowerCase().includes(search) ||
+      product.iznos.toString().toLowerCase().includes(search) ||
+      product.poziv_na_broj.toString().toLowerCase().includes(search) ||
+      product.primalac.toString().toLowerCase().includes(search) ||
+      product.svrha_placanja.toString().toLowerCase().includes(search) ||
+      product.preostalo.toString().toLowerCase().includes(search) ||
+      product.duznik.naziv.toString().toLowerCase().includes(search)
     );
   };
 

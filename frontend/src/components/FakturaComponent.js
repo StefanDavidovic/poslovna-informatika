@@ -1,46 +1,65 @@
 import { Container, Row, Col, Table, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import _ from "lodash"
 import {FaktureContext} from "../App";
 
 
 function FakturaComponent(){
-  const [fakture, setFakture] = useState([]);
+  const fakture = useRef([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [dodate, setDodate] = useState({});
+  const [search, setSearch] = useState("");
   const [paginated, setPaginated] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const {dodateFakture, setDodateFakture} = useContext(FaktureContext)
 
+  const pagination = pageNo => {
+    setCurrentPage(pageNo);
+
+    const startIndex = (pageNo - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    let paginatedStavke;
+
+    if (search) {
+      paginatedStavke = getFiltered(fakture.current, search).slice(startIndex, endIndex);
+    } else {
+      paginatedStavke = fakture.current.slice(startIndex, endIndex);
+    }
+
+    setPaginated(paginatedStavke);
+    };
 
   useEffect(() => {
     const headers = {
-      'Content-Type': 'application/json'
-    }
-    const getFakture = async() =>{
-      axios.get("http://localhost:8000/api/fakture/", {
-        headers: headers
-      })
+      "Content-Type": "application/json"
+    };
+    const getFakture = () => {
+      axios
+        .get("http://localhost:8000/api/fakture/", {
+          headers: headers
+        })
         .then(response => {
-          setFakture(response.data)
-          setPaginated(_(response.data).slice(0).take(pageSize).value())
+          fakture.current = response.data;
+          pagination(1);
         })
         .catch(error => {
-          console.log(error)
-          setError(error)
+          console.log(error);
+          setError(error);
         })
         .finally(() => {
-          setLoading(false)
-        })
-        
+          setLoading(false);
+        });
     };
-    getFakture()
-
-
+    getFakture();
   }, []);
+
+  useEffect(() => {
+    pagination(1);
+  }, [search]);
+
 
   const getRowClassName = id => dodateFakture[id] ? "selected" : "unselected";
 
@@ -56,21 +75,38 @@ function FakturaComponent(){
     setDodateFakture({...dodateFakture, [faktura.id]: faktura});
   }
 
+  const handleSearch = event => {
+    setSearch(event.target.value);
+  };
+
+  const getFiltered = (fakture, search) => {
+    return fakture.filter(product =>
+      product.broj_fakture.toString().toLowerCase().includes(search) ||
+      product.iznos_za_placanje.toString().toLowerCase().includes(search) ||
+      product.uplaceno.toString().toLowerCase().includes(search)
+    );
+  };
+
+
+
   const pageSize = 3;
-  const pageCount = fakture? Math.ceil(fakture.length/pageSize):0;
+  const pageCount = paginated
+    ? Math.ceil(fakture.current.length / pageSize)
+    : 0;
   if(pageCount === 0) return null; 
   const pages = _.range(1,pageCount + 1)
 
-  const pagination = (pageNo) => {
-    setCurrentPage(pageNo);
-    const startIndex = (pageNo - 1)*pageSize
-    const paginatedStavke = _(fakture).slice(startIndex).take(pageSize).value();
-    setPaginated(paginatedStavke)
-  }
 
   return (
     <Container>
       <Row style={{marginTop:20, marginBottom:25}}><Col id="stavke-naslov"><h2>Izlazne Fakture</h2></Col></Row>
+      <Row style={{ marginTop: 50, marginBottom: 25 }}>
+        <Col id="stavke-search">
+          <label htmlFor="search">
+            <input id="search" type="text" onChange={handleSearch} />
+          </label>
+        </Col>
+      </Row>
       <Row>
         <Col>
           <Table striped bordered hover responsive="md" id="tableFakutura">
