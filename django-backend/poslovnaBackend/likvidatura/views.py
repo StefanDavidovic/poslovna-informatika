@@ -6,8 +6,41 @@ from rest_framework.response import Response
 from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
 from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
+import io
+from django.http import FileResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
 
-### Banka ###
+@api_view(['GET'])
+def generatePdf(request):
+  buf = io.BytesIO()
+  c = canvas.Canvas(buf, pagesize=letter, bottomup=0)
+  textob = c.beginText()
+  textob.setTextOrigin(inch,inch)
+  textob.setFont("Helvetica", 14)
+
+  fakture = IzlaznaFaktura.objects.all()
+  serializer = IzlaznaFakturaSerializer(fakture, many=True)
+  data = serializer.data
+  lines = []
+  for ob in fakture:
+    lines.append(f'Broj Fakture|Iznos|Uplaceno|')
+    lines.append(f'{ob.broj_fakture}|{ob.iznos_za_placanje}|{ob.uplaceno}|')
+    
+
+  for line in lines:
+    textob.textLine(line)
+    print(line)
+
+  c.drawText(textob)
+  c.showPage()
+  c.save()
+  buf.seek(0)
+
+  return FileResponse(buf, as_attachment=True, filename='fakture.pdf')
+
+### Import ###
 @api_view(['POST'])
 def importStanja(request):    
     response = HttpResponse(content_type='application/json')
@@ -47,6 +80,8 @@ def importStanja(request):
 
     return Response(201)
     
+
+### Banka ###
 
 @api_view(['GET'])
 def banke(request):

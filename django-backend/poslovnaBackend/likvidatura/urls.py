@@ -40,7 +40,8 @@ urlpatterns = [
     path('zakljucene/<str:pk>/delete', views.deleteZakljucena, name='delete-zakljucena' ),
     path('zakljucene/<str:pk>', views.zakljucena, name='zakljucena' ),
 
-    path('import/', views.importStanja, name='export2')
+    path('import/', views.importStanja, name='export2'),
+    path('generatePdf/', views.generatePdf, name='generatePdf')
 
 
 
