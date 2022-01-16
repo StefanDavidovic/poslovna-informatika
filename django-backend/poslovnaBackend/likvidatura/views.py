@@ -9,31 +9,39 @@ import json
 import io
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch,mm
 from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 @api_view(['GET'])
 def generatePdf(request):
   buf = io.BytesIO()
-  c = canvas.Canvas(buf, pagesize=letter, bottomup=0)
-  textob = c.beginText()
-  textob.setTextOrigin(inch,inch)
-  textob.setFont("Helvetica", 14)
+  c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
+  width, height = A4
+  c.drawString(217,40, 'IZLAZNE FAKTURE')
 
   fakture = IzlaznaFaktura.objects.all()
-  serializer = IzlaznaFakturaSerializer(fakture, many=True)
-  data = serializer.data
+
   lines = []
   for ob in fakture:
-    lines.append(f'Broj Fakture|Iznos|Uplaceno|')
-    lines.append(f'{ob.broj_fakture}|{ob.iznos_za_placanje}|{ob.uplaceno}|')
-    
+    data = [ob.broj_fakture, str(ob.iznos_za_placanje), str(ob.uplaceno)]
+    lines.append(data)
+  
+  lines.append(["Broj Fakture", "Iznos za Placanje", "Uplaceno"])
 
-  for line in lines:
-    textob.textLine(line)
-    print(line)
+  table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *4)
 
-  c.drawText(textob)
+  table.setStyle(TableStyle([
+        ('BACKGROUND', (0, -1), (2, -1), '#a7a5a5'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+  table.wrapOn(c, width, height)
+  table.drawOn(c, 25*mm, 25*mm)
+  
   c.showPage()
   c.save()
   buf.seek(0)
