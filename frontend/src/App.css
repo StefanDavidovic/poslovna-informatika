@@ -21,3 +21,15 @@ body {
   padding: 8px 20px;
   text-decoration: none;
 }
+
+#stavke-search{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#search{
+  border-radius: 10px;
+  padding: 3px;
+  border-color: grey;
+}
