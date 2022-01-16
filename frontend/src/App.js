@@ -5,6 +5,7 @@ import { useState, useEffect, createContext } from "react";
 import StavkaComponent from "./components/StavkaComponent";
 import FakturaComponent from "./components/FakturaComponent";
 import ZatvaranjeFaktura from "./components/ZatvaranjeFaktura";
+import Header from "./components/Header";
 
 
 
@@ -49,6 +50,8 @@ function App() {
   console.log(JSON.stringify(dodateFakture) + "DODATE Stavke")
 
   return (
+    <>
+    <Header />
     <Container>
 
       <StavkeContext.Provider
@@ -91,6 +94,7 @@ function App() {
 
 
     </Container>
+    </>
   );
 }
 

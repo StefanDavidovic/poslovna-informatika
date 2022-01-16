@@ -1,5 +1,5 @@
 body {
-  padding: 16px;
+  padding: 0px;
 }
 
 #stavke-naslov{
@@ -13,4 +13,11 @@ body {
 
 .selected{
   background-color: burlywood;
+}
+#pdf{
+  border: 1px solid burlywood;
+  background-color: white;
+  color: black;
+  padding: 8px 20px;
+  text-decoration: none;
 }
