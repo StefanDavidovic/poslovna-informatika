@@ -45,7 +45,7 @@ urlpatterns = [
 
     path('import/', views.importStanja, name='export2'),
     path('generatePdf/<str:pk>/', views.generatePdf, name='generatePdf'),
-    # path('generatePdf/', views.generatePdf, name='generatePdf')
+    path('generatePdf/', views.generatePdf, name='generatePdf')
 
 
 

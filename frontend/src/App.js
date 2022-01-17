@@ -93,13 +93,13 @@ function App() {
           <Col>
             <input type="file" name="file" onChange={changeHandler} />
             <div>
-              <Button variant="outline-success" onClick={handleSubmission}>
+              <Button variant="outline-primary" onClick={handleSubmission}>
                 Upload
               </Button>
             </div>
           </Col>
           <Col style={{ float: "right" }}>
-            
+            <h5>Generisi PDF:</h5>
             <DropdownButton title="Poslovni Partneri">
               {partneri.map(partner =>
               <a id="partneri" href={`http://localhost:8000/api/generatePdf/${partner.id}`}>{partner.naziv}<br/></a>)}

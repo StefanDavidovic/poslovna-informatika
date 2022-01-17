@@ -57,38 +57,38 @@ def generatePdf(request, pk):
 
 
 
-# @api_view(['GET'])
-# def generatePdf(request):
-#   buf = io.BytesIO()
-#   c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
-#   width, height = A4
-#   c.drawString(217,40, 'IZLAZNE FAKTURE')
+@api_view(['GET'])
+def generatePdf(request):
+  buf = io.BytesIO()
+  c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
+  width, height = A4
+  c.drawString(217,40, 'IZLAZNE FAKTURE')
 
-#   fakture = IzlaznaFaktura.objects.all()
+  fakture = IzlaznaFaktura.objects.all()
 
-#   lines = []
-#   for ob in fakture:
-#     data = [ob.broj_fakture, str(ob.iznos_za_placanje), str(ob.uplaceno)]
-#     lines.append(data)
+  lines = []
+  for ob in fakture:
+    data = [ob.broj_fakture, str(ob.iznos_za_placanje), str(ob.uplaceno)]
+    lines.append(data)
   
-#   lines.append(["Broj Fakture", "Iznos za Placanje", "Uplaceno"])
+  lines.append(["Broj Fakture", "Iznos za Placanje", "Uplaceno"])
+  counter = len(fakture) + 1
+  table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *counter)
 
-#   table = Table(lines, colWidths=[1.9*inch] * 5, rowHeights=[0.4*inch] *4)
-
-#   table.setStyle(TableStyle([
-#         ('BACKGROUND', (0, -1), (2, -1), '#a7a5a5'),
-#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-#         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#         ('GRID', (0, 0), (-1, -1), 1, colors.black)
-#     ]))
-#   table.wrapOn(c, width, height)
-#   table.drawOn(c, 25*mm, 25*mm)
+  table.setStyle(TableStyle([
+        ('BACKGROUND', (0, -1), (2, -1), '#a7a5a5'),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+  table.wrapOn(c, width, height)
+  table.drawOn(c, 25*mm, 25*mm)
   
-#   c.showPage()
-#   c.save()
-#   buf.seek(0)
+  c.showPage()
+  c.save()
+  buf.seek(0)
 
-#   return FileResponse(buf, as_attachment=True, filename='fakture.pdf')
+  return FileResponse(buf, as_attachment=True, filename='fakture.pdf')
 
 ### Import ###
 @api_view(['POST'])
