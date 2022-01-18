@@ -3,7 +3,7 @@ import {
   Row,
   Col,
   Table,
-  Button,
+  Button, 
 } from "react-bootstrap";
 import Pagination from "@material-ui/lab/Pagination";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,12 +11,10 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { StavkeContext, FaktureContext } from "../App";
 
 function ZatvaranjeFaktura() {
-  const zakljucene = useRef([]);
   const { dodateStavke, setDodate } = useContext(StavkeContext);
   const { dodateFakture, setDodateFakture } = useContext(FaktureContext);
   const [paginated, setPaginated] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [brojStavki, setBrojStavki] = useState([])

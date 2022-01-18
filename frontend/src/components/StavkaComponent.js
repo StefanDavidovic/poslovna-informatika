@@ -18,8 +18,7 @@ function StavkaComponent() {
   const [paginated, setPaginated] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const { dodateStavke, setDodate } = useContext(StavkeContext);
-  const [brojStavki, setBrojStavki] = useState([])
-  
+  const [brojStavki, setBrojStavki] = useState([]);
 
   const URL = `http://localhost:8000/api/paginate-stavke?q=${search}&page=${currentPage}`;
 
