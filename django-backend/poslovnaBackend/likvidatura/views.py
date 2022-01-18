@@ -3,11 +3,16 @@ from django.http import response
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
+from filter_and_pagination import FilterPagination
 from rest_framework.response import Response
 from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PoslovniPartnerSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
 from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
 import io
+from django.db.models import Q
+import math
 from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch,mm
@@ -15,6 +20,42 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+
+from likvidatura import serializers
+
+class StavkeToList(ListAPIView):
+  def get(self,request):
+    q = request.GET.get('q')
+    page=int(request.GET.get('page',1))
+    per_page = 3
+
+    stavke = StavkaIzvoda.objects.all()
+
+    if q:
+      stavke = stavke.filter(Q(broj_stavke__icontains=q) | Q(iznos__icontains=q) | 
+      Q(preostalo__icontains=q) | Q(duznik__naziv__icontains=q))
+    total = stavke.count()
+    start = (page-1)*per_page
+    end = page * per_page
+
+    serializer = StavkaIzvodaSerializer(stavke[start:end], many=True)
+    return Response({
+      'data':serializer.data,
+      'total':total,
+      'page':page,
+      'last_page':math.ceil(total/per_page)
+    })
+
+
+
+
+# @api_view(['GET'])
+# def stavkeToList(request):
+#   queryset = FilterPagination.filter_and_pagination(request, StavkaIzvoda)
+#   serialize_data = StavkaIzvodaSerializer(queryset['queryset'], many=True).data
+#   resultset = {'dataset': serialize_data, 'pagination': queryset['pagination']}
+#   return Response(resultset)
+
 
 @api_view(['GET'])
 def generatePdf(request, pk):
@@ -58,7 +99,7 @@ def generatePdf(request, pk):
 
 
 @api_view(['GET'])
-def generatePdf(request):
+def generatePdf2(request):
   buf = io.BytesIO()
   c = canvas.Canvas(buf, pagesize=A4, bottomup=0)
   width, height = A4

@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import StavkeToList
 
 urlpatterns = [
     path('banke/', views.banke, name='banke' ),
@@ -45,7 +46,10 @@ urlpatterns = [
 
     path('import/', views.importStanja, name='export2'),
     path('generatePdf/<str:pk>/', views.generatePdf, name='generatePdf'),
-    path('generatePdf/', views.generatePdf, name='generatePdf')
+    path('generatePdf/', views.generatePdf2, name='generatePdf'),
+
+    path('paginate-stavke/', StavkeToList.as_view(), name='paginate-stavke')
+
 
 
 

@@ -92,65 +92,79 @@ function ZatvaranjeFaktura() {
 
     
 
-    stavkaa['preostalo']= parseFloat(stavkaa['preostalo']) - parseFloat(uplaceno)
-    if(parseFloat(stavkaa['preostalo']) > 0){
-      await fetch(`http://localhost:8000/api/stavke/${stavkaId}/update`, {
-        method: "PUT",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(stavkaa),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          console.log(result);
+
+
+    // if(korektno){
+
+      if(parseFloat(uplaceno) + parseFloat(fakturaa['uplaceno']) <= parseFloat(fakturaa['iznos_za_placanje'])){
+        
+        stavkaa['preostalo']= parseFloat(stavkaa['preostalo']) - parseFloat(uplaceno)
+        if(parseFloat(stavkaa['preostalo']) > 0 && parseFloat(fakturaa['uplaceno']) <= parseFloat(fakturaa['iznos_za_placanje'])){
+          await fetch(`http://localhost:8000/api/stavke/${stavkaId}/update`, {
+            method: "PUT",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(stavkaa),
+          })
+            .then((res) => res.json())
+            .then((result) => {
+              console.log(result);
+            })
+            .catch((err) => console.log("error"));
+        }else if(parseFloat(stavkaa['preostalo']) < 0){
+          alert(`Nedovoljno sredstava - Stavka:  ${stavkaa['broj_stavke']}`)
+          // stavkaa['preostalo']= parseFloat(stavkaa['preostalo'])
+          korektno = false
+        }else if(parseFloat(uplaceno) + parseFloat(fakturaa['uplaceno']) <= parseFloat(fakturaa['iznos_za_placanje'])){
+          alert(`Faktura je otplacena`)
+          stavkaa['preostalo']= parseFloat(stavkaa['preostalo'])
+        }
+        console.log(korektno)
+        if(korektno == true){
+        await fetch("http://localhost:8000/api/zakljucene/create", {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data),
         })
-        .catch((err) => console.log("error"));
-    }else{
-      alert(`Nedovoljno sredstava - Stavka:  ${stavkaa['broj_stavke']}`)
-      stavkaa['preostalo']= 0
-      korektno = false
-    }
+          .then((res) => res.json())
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((err) => console.log("error"));
+      
 
-    if(korektno){
-
-      await fetch("http://localhost:8000/api/zakljucene/create", {
-        method: "POST",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          console.log(result);
+        fakturaa['uplaceno']= parseFloat(fakturaa['uplaceno']) + parseFloat(uplaceno)
+        if(parseFloat(fakturaa['uplaceno']) > parseFloat(fakturaa['iznos_za_placanje'])){
+          let kusur = parseFloat(fakturaa['uplaceno']) - parseFloat(fakturaa['iznos_za_placanje'])
+          alert(`Ostalo vam je ${kusur} dinara kusura`)
+          fakturaa['uplaceno'] = fakturaa['iznos_za_placanje']
+        }
+        await fetch(`http://localhost:8000/api/fakture/${fakturaId}/update`, {
+          method: "PUT",
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(fakturaa),
         })
-        .catch((err) => console.log("error"));
-
-      fakturaa['uplaceno']= parseFloat(fakturaa['uplaceno']) + parseFloat(uplaceno)
-      if(parseFloat(fakturaa['uplaceno']) > parseFloat(fakturaa['iznos_za_placanje'])){
-        let kusur = parseFloat(fakturaa['uplaceno']) - parseFloat(fakturaa['iznos_za_placanje'])
-        alert(`Ostalo vam je ${kusur} dinara kusura`)
-        fakturaa['uplaceno'] = fakturaa['iznos_za_placanje']
+          .then((res) => res.json())
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((err) => console.log("error"));
+          window.location.reload(false);
       }
-      await fetch(`http://localhost:8000/api/fakture/${fakturaId}/update`, {
-        method: "PUT",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(fakturaa),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((err) => console.log("error"));
-
+      
     }
-    window.location.reload(false);
+      else{
+        alert("Faktura je otplacena")
+      }
+    // }
   };
 
   const handleSearch = event => {
