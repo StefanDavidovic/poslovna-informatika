@@ -46,16 +46,51 @@ class StavkeToList(ListAPIView):
       'last_page':math.ceil(total/per_page)
     })
 
+class FaktureToList(ListAPIView):
+  def get(self,request):
+    q = request.GET.get('q')
+    page=int(request.GET.get('page',1))
+    per_page = 3
 
+    stavke = IzlaznaFaktura.objects.all()
 
+    if q:
+      stavke = stavke.filter(Q(broj_fakture__icontains=q) | Q(iznos_za_placanje__icontains=q) | 
+      Q(uplaceno__icontains=q) | Q(partner__naziv__icontains=q))
+    total = stavke.count()
+    start = (page-1)*per_page
+    end = page * per_page
 
-# @api_view(['GET'])
-# def stavkeToList(request):
-#   queryset = FilterPagination.filter_and_pagination(request, StavkaIzvoda)
-#   serialize_data = StavkaIzvodaSerializer(queryset['queryset'], many=True).data
-#   resultset = {'dataset': serialize_data, 'pagination': queryset['pagination']}
-#   return Response(resultset)
+    serializer = IzlaznaFakturaSerializer(stavke[start:end], many=True)
+    return Response({
+      'data':serializer.data,
+      'total':total,
+      'page':page,
+      'last_page':math.ceil(total/per_page)
+    })
 
+class ZakljuceneToList(ListAPIView):
+  def get(self,request):
+    q = request.GET.get('q')
+    page=int(request.GET.get('page',1))
+    per_page = 3
+
+    stavke = ZakljuceneFakture.objects.all()
+
+    if q:
+      stavke = stavke.filter(Q(faktura__broj_fakture__icontains=q) | Q(stavka__broj_stavke__icontains=q) | 
+      Q(uplaceno__icontains=q) | Q(stavka__duznik__naziv__icontains=q))
+    total = stavke.count()
+    start = (page-1)*per_page
+    end = page * per_page
+
+    serializer = ZakljuceneSerializer2(stavke[start:end], many=True)
+    return Response({
+      'data':serializer.data,
+      'total':total,
+      'page':page,
+      'last_page':math.ceil(total/per_page)
+    })
 
 @api_view(['GET'])
 def generatePdf(request, pk):

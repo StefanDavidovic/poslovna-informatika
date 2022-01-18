@@ -9,7 +9,6 @@ import Pagination from "@material-ui/lab/Pagination";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useState, useRef, useEffect, useContext } from "react";
-import _ from "lodash";
 
 import { StavkeContext } from "../App";
 
@@ -41,7 +40,6 @@ function StavkaComponent() {
   const handleChangeSearch = (event,value) =>{
     setSearch(event.target.value);
   }
-  console.log(search)
 
   const getRowClassName = id => (dodateStavke[id] ? "selected" : "unselected");
 

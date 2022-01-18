@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import StavkeToList
+from .views import StavkeToList, FaktureToList, ZakljuceneToList
 
 urlpatterns = [
     path('banke/', views.banke, name='banke' ),
@@ -48,7 +48,10 @@ urlpatterns = [
     path('generatePdf/<str:pk>/', views.generatePdf, name='generatePdf'),
     path('generatePdf/', views.generatePdf2, name='generatePdf'),
 
-    path('paginate-stavke/', StavkeToList.as_view(), name='paginate-stavke')
+    path('paginate-stavke/', StavkeToList.as_view(), name='paginate-stavke'),
+    path('paginate-fakture/', FaktureToList.as_view(), name='paginate-fakture'),
+    path('paginate-zakljucene/', ZakljuceneToList.as_view(), name='paginate-zakljucene'),
+
 
 
 
