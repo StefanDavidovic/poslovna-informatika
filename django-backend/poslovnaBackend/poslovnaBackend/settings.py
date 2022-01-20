@@ -93,7 +93,8 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'RootRoot22',
         'PORT': '3306',
-        'HOST':'localhost'
+        'HOST':'localhost',
+        'ATOMIC_REQUEST': True,
     }
 }
 

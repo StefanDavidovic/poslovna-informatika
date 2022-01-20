@@ -6,7 +6,7 @@ from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanje
 from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
 import io
-from django.db import transaction
+from django.db import transaction,IntegrityError
 from django.db.models import F
 from django.db.models import Q
 import math
@@ -417,21 +417,29 @@ def zakljucena(request, pk):
   return Response(serializer.data)
 
 @api_view(['POST'])
-@transaction.atomic
 def createZakljucena(request):
   faktura = (request.data)['faktura']
   stavka = (request.data)['stavka']
   uplaceno = (request.data)['uplaceno']
-
-  StavkaIzvoda.objects.filter(id = stavka).update(preostalo = F('preostalo') - uplaceno)
-  IzlaznaFaktura.objects.filter(id = faktura).update(uplaceno = F('uplaceno') + uplaceno)
-
   serializer = ZakljuceneSerializer(data=request.data)
 
-  if serializer.is_valid():
-    serializer.save()
-  else:
-    print("JBG")
+  try:
+    with transaction.atomic():
+
+      stavkaIzvoda = StavkaIzvoda.objects.select_for_update().get(id=stavka)
+      izlaznaFaktura = IzlaznaFaktura.objects.select_for_update().get(id=faktura)
+
+      stavkaIzvoda.preostalo -= uplaceno
+      stavkaIzvoda.save()
+
+      izlaznaFaktura.uplaceno += uplaceno
+      izlaznaFaktura.save()
+
+      if serializer.is_valid():
+        serializer.save()
+
+  except IntegrityError:
+    print("Problem sa transakcijom")
 
   return Response("Zakljucena faktura uspesno kreirana")
 
