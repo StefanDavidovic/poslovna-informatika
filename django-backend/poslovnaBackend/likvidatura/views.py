@@ -1,16 +1,13 @@
-from typing import Counter
-from django.http import response
 from django.http.response import HttpResponse
-from django.shortcuts import render
 from rest_framework.decorators import api_view
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from filter_and_pagination import FilterPagination
 from rest_framework.response import Response
 from .serializers import BankaSerializer, BankarskiRacunSerializer, DnevnoStanjeSerializer, IzlaznaFakturaSerializer, PoslovnaGodinaSerializer, PoslovniPartnerSerializer, PreduzeceSerializer, StavkaIzvodaSerializer, ZakljuceneSerializer, ZakljuceneSerializer2
 from .models import Banka, BankarskiRacun,DnevnoStanje,IzlaznaFaktura,PoslovnaGodina, PoslovniPartner, Preduzece, StavkaIzvoda, ZakljuceneFakture
 import json
 import io
+from django.db import transaction
+from django.db.models import F
 from django.db.models import Q
 import math
 from django.http import FileResponse
@@ -19,9 +16,7 @@ from reportlab.lib.units import inch,mm
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-
-from likvidatura import serializers
+from reportlab.platypus import Table, TableStyle
 
 class StavkeToList(ListAPIView):
   def get(self,request):
@@ -422,11 +417,21 @@ def zakljucena(request, pk):
   return Response(serializer.data)
 
 @api_view(['POST'])
+@transaction.atomic
 def createZakljucena(request):
+  faktura = (request.data)['faktura']
+  stavka = (request.data)['stavka']
+  uplaceno = (request.data)['uplaceno']
+
+  StavkaIzvoda.objects.filter(id = stavka).update(preostalo = F('preostalo') - uplaceno)
+  IzlaznaFaktura.objects.filter(id = faktura).update(uplaceno = F('uplaceno') + uplaceno)
+
   serializer = ZakljuceneSerializer(data=request.data)
-  
+
   if serializer.is_valid():
     serializer.save()
+  else:
+    print("JBG")
 
   return Response("Zakljucena faktura uspesno kreirana")
 

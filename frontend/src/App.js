@@ -1,5 +1,13 @@
 import "./App.css";
-import { Container, Row, Col, Table, Button, Dropdown, DropdownButton } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Table,
+  Button,
+  Dropdown,
+  DropdownButton,
+} from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect, createContext, useRef } from "react";
 import StavkaComponent from "./components/StavkaComponent";
@@ -43,6 +51,7 @@ function App() {
       .catch((error) => {
         console.error("Error:", error);
       });
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -91,9 +100,13 @@ function App() {
 
         <Row id="upload">
           <Col>
-            <input type="file" name="file" onChange={changeHandler} />
+            <input type="file" name="file" id="file" onChange={changeHandler}/>
             <div>
-              <Button variant="outline-primary" onClick={handleSubmission}>
+              <Button
+                id="uploadBtn"
+                variant="outline-primary"
+                onClick={handleSubmission}
+              >
                 Upload
               </Button>
             </div>
@@ -101,9 +114,15 @@ function App() {
           <Col style={{ float: "right" }}>
             <h5>Generisi PDF:</h5>
             <DropdownButton title="Poslovni Partneri">
-              {partneri.map(partner =>
-              <a id="partneri" href={`http://localhost:8000/api/generatePdf/${partner.id}`}>{partner.naziv}<br/></a>)}
-              {/* // <Dropdown.Item eventKey={partner.id}></Dropdown.Item> */}
+              {partneri.map((partner) => (
+                <a
+                  id="partneri"
+                  href={`http://localhost:8000/api/generatePdf/${partner.id}`}
+                >
+                  {partner.naziv}
+                  <br />
+                </a>
+              ))}
             </DropdownButton>
           </Col>
         </Row>

@@ -5,10 +5,9 @@ from ool import VersionField, VersionedMixin
 
 
 # Create your models here.
-class Banka(VersionedMixin,models.Model):
+class Banka(models.Model):
   sifra = models.CharField(max_length=45)
   naziv = models.CharField(max_length=45)
-  version = VersionField()
 
   def __str__(self):
     return self.naziv
@@ -16,26 +15,24 @@ class Banka(VersionedMixin,models.Model):
 
 
 
-class Preduzece(VersionedMixin,models.Model):
+class Preduzece(models.Model):
   naziv = models.CharField(max_length=45)
   pib = models.CharField(max_length=45)
   maticni_broj = models.CharField(max_length=45)
-  version = VersionField()
 
   def __str__(self):
     return self.naziv
 
 
-class BankarskiRacun(VersionedMixin,models.Model):
+class BankarskiRacun(models.Model):
   broj_racuna = models.CharField(max_length=45)
   banka_id = models.ForeignKey(Banka, on_delete=models.CASCADE,default=1)
   preduzece = models.ForeignKey(Preduzece, on_delete=CASCADE,default=1)
-  version = VersionField()
 
   def __str__(self):
         return self.broj_racuna
 
-class DnevnoStanje(VersionedMixin,models.Model):
+class DnevnoStanje(models.Model):
   broj_izvoda = models.IntegerField()
   datum_izvoda = models.DateField()
   novo_stanje = models.FloatField()
@@ -44,27 +41,24 @@ class DnevnoStanje(VersionedMixin,models.Model):
   promet_u_korist = models.FloatField()
   rezervisano = models.FloatField()
   bankarski_racun_id = models.ForeignKey(BankarskiRacun, on_delete=models.CASCADE, default=1, related_name='stanja')
-  version = VersionField()
 
   def __str__(self):
         return str(self.broj_izvoda)
   
 
 
-class PoslovniPartner(VersionedMixin,models.Model):
+class PoslovniPartner(models.Model):
   naziv = models.CharField(max_length=45)
   bankarski_racun_id = models.ForeignKey(BankarskiRacun, on_delete=models.CASCADE, default=1)
-  version = VersionField()
 
   def __str__(self):
         return self.naziv
   
 
-class PoslovnaGodina(VersionedMixin,models.Model):
+class PoslovnaGodina(models.Model):
   godina = models.IntegerField()
   zakljucena = models.BooleanField(default=False)
   preduzece = models.ForeignKey(Preduzece, on_delete=CASCADE, default=1)
-  version = VersionField()
 
 
 class IzlaznaFaktura(VersionedMixin,models.Model):
@@ -90,8 +84,6 @@ class StavkaIzvoda(VersionedMixin,models.Model):
   dnevno_stanje = models.ForeignKey(DnevnoStanje,default=1, on_delete=models.CASCADE, related_name='stavke')
   preostalo = models.FloatField(default=0)
   version = VersionField()
-
-  # fakture = models.ManyToManyField(IzlaznaFaktura) 
 
   def __str__(self):
        return str(self.broj_stavke)

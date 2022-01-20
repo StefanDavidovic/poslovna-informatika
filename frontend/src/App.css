@@ -58,3 +58,7 @@ body {
 #paginacija{
   float: right;
 }
+
+#uploadBtn{
+  margin-top: 10px;
+}
