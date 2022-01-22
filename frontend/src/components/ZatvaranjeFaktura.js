@@ -52,14 +52,12 @@ function ZatvaranjeFaktura() {
       stavkaa = stavka;
     });
     data["uplaceno"] = parseFloat(uplaceno);
-
+    
     if (
       parseFloat(uplaceno) + parseFloat(fakturaa["uplaceno"]) <=
         parseFloat(fakturaa["iznos_za_placanje"]) &&
-      parseFloat(stavkaa["preostalo"]) > 0 &&
-      parseFloat(fakturaa["uplaceno"]) <=
-        parseFloat(fakturaa["iznos_za_placanje"])
-    ) {
+      parseFloat(stavkaa["preostalo"]) - parseFloat(uplaceno) >= 0)
+     {
       stavkaa["preostalo"] =
         parseFloat(stavkaa["preostalo"]) - parseFloat(uplaceno);
       fakturaa["uplaceno"] =
